@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        const DB_URI = process.env.DB_URI;
+        const DB_URI = process.env.DB_URI || "mongodb://localhost:27017/staffly";
         
         if (!DB_URI) {
             throw new Error('Database URI is not defined in environment variables');

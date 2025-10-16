@@ -90,7 +90,14 @@ const login = async (req, res) => {
         // Update last login
         user.lastLogin = new Date();
         await user.save();
+        
         const profile = await Profile.findById(user.profile);
+        
+        // Check if this user is an employee and get employee data
+        const Employee = require('../models/Employee');
+        const employeeData = await Employee.findOne({ user: user._id })
+            .populate('reportsTo', 'name email employeeId designation');
+        
         // Generate and set cookie
         const token = generateAndSetCookies(user._id, res);
         res.json({
@@ -100,9 +107,17 @@ const login = async (req, res) => {
                 email: user.email,
                 name: user.name,
                 profilePicture: user.profilePicture,
-                role:user.role,
-                profile:profile,
-                participatedEvents:user.participatedEvents
+                role: user.role,
+                profile: profile,
+                participatedEvents: user.participatedEvents,
+                employee: employeeData ? {
+                    id: employeeData._id,
+                    employeeId: employeeData.employeeId,
+                    department: employeeData.department,
+                    designation: employeeData.designation,
+                    status: employeeData.status,
+                    reportsTo: employeeData.reportsTo
+                } : null
             },
             token: token
         });

@@ -6,8 +6,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const authRoutes = require('./route/authRoutes');
-const eventRoutes = require('./route/eventRoutes');
-const complaintRoutes = require('./route/complaintRoutes');
 const connectDB = require('./utils/connectDB');
 const path = require('path');
 
@@ -30,7 +28,7 @@ const limiter = rateLimit({
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin:"http://localhost:5173",
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -39,12 +37,20 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get('/',(req,res)=>{
     res.send('Server is running');
 })
+
+// API Routes
 app.use('/api/auth', authRoutes);
-app.use("/attendance", attendanceRoutes);
-app.use("/leaves", leaveRoutes);
-app.use("/employees", employeeRoutes);
-app.use("/analytics", analyticsRoutes);
-app.use("/policies", policyRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/leaves', leaveRoutes);
+app.use('/api/employees', employeeRoutes);
+app.use('/api/policies', policyRoutes);
+
+// Analytics route (if exists)
+app.use('/api/analytics', analyticsRoutes);
+
+// Legacy routes for events and complaints (non-HRMS - can be removed if not needed)
+// app.use('/api/events', eventRoutes);
+// app.use('/api/complaints', complaintRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

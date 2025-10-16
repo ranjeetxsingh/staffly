@@ -1,77 +1,196 @@
-import { useDispatch } from 'react-redux';
-import { googleAuth, register, login, logout, deleteAccount, profileUpdate } from '../API/authAPI';
-import axios from 'axios';
+/**
+ * Auth Service
+ * Handles all authentication-related API calls and local storage management
+ */
 
+import axios from '../utils/axios';
 
 export const authService = {
-  login: async (credentials) => {
-    const response = await login(credentials);
-    if (response.data.token) {
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      localStorage.setItem('authToken', response.data.token);
-    }
-    return response.data;
-  },
-
+  /**
+   * Register new user
+   */
   register: async (userData) => {
-    const response = await register(userData);
-    if (response.data.token) {
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      localStorage.setItem('authToken', response.data.token);
+    try {
+      const response = await axios.post('/api/auth/register', userData);
+      
+      // Store token if provided
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error during registration:', error);
+      throw error;
     }
-    return response.data;
   },
 
+  /**
+   * Login user
+   */
+  login: async (credentials) => {
+    try {
+      const response = await axios.post('/api/auth/login', credentials);
+      
+      // Store token and user data
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Google OAuth login
+   */
   googleLogin: async (code) => {
     try {
-      const response = await googleAuth(code);
-      if (response.data.token) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('authToken', response.data.token);
+      const response = await axios.get(`/api/auth/oauth?code=${code}`);
+      
+      // Store token and user data
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
       }
-      return response.data;
+      
+      return response;
     } catch (error) {
       console.error('Error during Google Login:', error);
       throw error;
     }
   },
 
+  /**
+   * Logout user
+   */
   logout: async () => {
     try {
-      await logout();
-      localStorage.removeItem('user');
-      localStorage.removeItem('authToken');
+      const response = await axios.post('/api/auth/logout');
       
+      // Clear local storage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      
+      return response;
     } catch (error) {
+      // Clear local storage even if API call fails
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
       console.error('Error during logout:', error);
       throw error;
     }
   },
 
-  getCurrentUser: () => {
-    return JSON.parse(localStorage.getItem('user'));
-  },
-
-  getToken: () => {
-    return localStorage.getItem('authToken');
-  },
-  deleteAccont: async () => {
+  /**
+   * Get current user from API
+   */
+  getCurrentUser: async () => {
     try {
-      const response = await deleteAccount();
+      const response = await axios.get('/api/auth/me');
+      
+      // Update stored user data
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user));
+      }
+      
       return response;
     } catch (error) {
-      console.log('Error during account deletion:', error);
+      console.error('Error fetching current user:', error);
       throw error;
     }
   },
+
+  /**
+   * Change password
+   */
   changePassword: async (passwordData) => {
+    try {
       const response = await axios.post('/api/auth/change-password', passwordData);
       return response;
-  },
-  profileUpdate: async (profileData) => {
-      const response = await profileUpdate(profileData);
-      return response;
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw error;
+    }
   },
 
+  /**
+   * Update profile
+   */
+  updateProfile: async (profileData) => {
+    try {
+      const response = await axios.post('/api/auth/update-profile', profileData);
+      
+      // Update stored user data
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user));
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Delete user account
+   */
+  deleteAccount: async () => {
+    try {
+      const response = await axios.post('/api/auth/delete-account');
+      
+      // Clear local storage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      
+      return response;
+    } catch (error) {
+      console.error('Error during account deletion:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get users for leaderboard
+   */
+  getUserForLeaderboard: async () => {
+    try {
+      const response = await axios.get('/api/auth/userForLeaderBoard');
+      return response;
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get stored user from localStorage
+   */
+  getStoredUser: () => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  },
+
+  /**
+   * Get auth token
+   */
+  getToken: () => {
+    return localStorage.getItem('authToken');
+  },
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated: () => {
+    const token = localStorage.getItem('authToken');
+    return !!token;
+  },
 };
+
 

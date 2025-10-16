@@ -1,13 +1,17 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { NavbarMenu } from "../../data/global/navbar";
+import { getNavbarMenuByRole } from "../../data/global/roleBasedNavbar";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 const ResponsiveMenu = ({ open, setOpen }) => {
+  const user = useSelector((state) => state.auth.user);
+  const NavbarMenu = getNavbarMenuByRole(user);
+  
   const Menu = [
     ...NavbarMenu,
     {
-      id: 6,
+      id: 999,
       key: "loginBtn",
       title: "Login",
       link: "/login",

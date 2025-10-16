@@ -18,6 +18,9 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload.user;
       state.token = action.payload.token;
+      // Keep localStorage in sync
+      localStorage.setItem('authToken', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -26,20 +29,28 @@ const authSlice = createSlice({
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
     },
-    eventParticapted: (state, action) => {
-      const { eventId } = action.payload;
-      state.user.participatedEvents.push(eventId);
-      localStorage.setItem('user', JSON.stringify(state.user));
-    },
     updateUserProfile: (state, action) => {
-      state.user.profile = {
-        ...state.user.profile,
-        ...action.payload,
-      };
+      // Support both full user object and partial profile updates
+      if (action.payload.email) {
+        // Full user object
+        state.user = {
+          ...state.user,
+          ...action.payload,
+        };
+      } else {
+        // Partial profile update
+        state.user = {
+          ...state.user,
+          profile: {
+            ...state.user?.profile,
+            ...action.payload,
+          },
+        };
+      }
       localStorage.setItem('user', JSON.stringify(state.user));
     }
   }
 });
 
-export const { login, logout, eventParticapted, updateUserProfile } = authSlice.actions;
+export const { login, logout, updateUserProfile } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,0 +1,1236 @@
+{
+	"info": {
+		"_postman_id": "hrms-staffly-2025",
+		"name": "HRMS Staffly - Complete Collection",
+		"description": "Complete API collection for Human Resource Management System with attendance tracking, leave management, employee management, and policy settings.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test response status",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Parse response",
+									"const response = pm.response.json();",
+									"",
+									"// Save token to environment",
+									"if (response.token) {",
+									"    pm.environment.set(\"authToken\", response.token);",
+									"    console.log(\"Token saved:\", response.token);",
+									"}",
+									"",
+									"// Save user info",
+									"if (response.user) {",
+									"    pm.environment.set(\"userId\", response.user._id);",
+									"    pm.environment.set(\"userRole\", response.user.role);",
+									"    pm.environment.set(\"userEmail\", response.user.email);",
+									"    console.log(\"User info saved\");",
+									"}",
+									"",
+									"// Test response structure",
+									"pm.test(\"Response has token\", function () {",
+									"    pm.expect(response).to.have.property('token');",
+									"});",
+									"",
+									"pm.test(\"Response has user\", function () {",
+									"    pm.expect(response).to.have.property('user');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"if (response.token) {",
+									"    pm.environment.set(\"authToken\", response.token);",
+									"}",
+									"",
+									"pm.test(\"User created successfully\", function () {",
+									"    pm.expect(response).to.have.property('user');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"employee\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Attendance",
+			"item": [
+				{
+					"name": "Check In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Check-in successful\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.message).to.include('Checked in');",
+									"});",
+									"",
+									"// Save attendance ID",
+									"if (response.data && response.data._id) {",
+									"    pm.environment.set(\"attendanceId\", response.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Log current time",
+									"console.log(\"Check-in time:\", new Date().toISOString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/attendance/check-in",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"attendance",
+								"check-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Out",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Check-out successful\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.message).to.include('Checked out');",
+									"});",
+									"",
+									"pm.test(\"Has work hours\", function () {",
+									"    pm.expect(response.data).to.have.property('totalWorkHours');",
+									"});",
+									"",
+									"console.log(\"Total work hours:\", response.data.totalWorkHours);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/attendance/check-out",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"attendance",
+								"check-out"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Attendance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has attendance data\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('records');",
+									"    pm.expect(response.data).to.have.property('stats');",
+									"});",
+									"",
+									"console.log(\"Total records:\", response.data.records.length);",
+									"console.log(\"Statistics:\", response.data.stats);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/attendance/my-attendance?month=10&year=2025",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"attendance",
+								"my-attendance"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "10"
+								},
+								{
+									"key": "year",
+									"value": "2025"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Today's Summary (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has summary data\", function () {",
+									"    pm.expect(response.data).to.have.property('totalEmployees');",
+									"    pm.expect(response.data).to.have.property('present');",
+									"    pm.expect(response.data).to.have.property('absent');",
+									"});",
+									"",
+									"console.log(\"Present:\", response.data.present);",
+									"console.log(\"Absent:\", response.data.absent);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/attendance/today-summary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"attendance",
+								"today-summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Monthly Report (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has report data\", function () {",
+									"    pm.expect(response.data).to.have.property('report');",
+									"    pm.expect(response.data.report).to.be.an('array');",
+									"});",
+									"",
+									"console.log(\"Report entries:\", response.data.report.length);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/attendance/monthly-report?month=10&year=2025",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"attendance",
+								"monthly-report"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "10"
+								},
+								{
+									"key": "year",
+									"value": "2025"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Leave",
+			"item": [
+				{
+					"name": "Apply Leave",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Leave application created\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('_id');",
+									"});",
+									"",
+									"// Save leave ID for future operations",
+									"if (response.data && response.data._id) {",
+									"    pm.environment.set(\"leaveId\", response.data._id);",
+									"    console.log(\"Leave ID saved:\", response.data._id);",
+									"}",
+									"",
+									"console.log(\"Number of days:\", response.data.numberOfDays);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Calculate dates",
+									"const today = new Date();",
+									"const fromDate = new Date(today);",
+									"fromDate.setDate(today.getDate() + 7);",
+									"const toDate = new Date(fromDate);",
+									"toDate.setDate(fromDate.getDate() + 2);",
+									"",
+									"pm.environment.set(\"leaveFromDate\", fromDate.toISOString().split('T')[0]);",
+									"pm.environment.set(\"leaveToDate\", toDate.toISOString().split('T')[0]);",
+									"",
+									"console.log(\"From:\", fromDate.toISOString().split('T')[0]);",
+									"console.log(\"To:\", toDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"leaveType\": \"casual\",\n  \"fromDate\": \"{{leaveFromDate}}\",\n  \"toDate\": \"{{leaveToDate}}\",\n  \"reason\": \"Personal work\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/leaves/apply",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"apply"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Leaves",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has leaves data\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"});",
+									"",
+									"console.log(\"Total leaves:\", response.data.length);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/leaves/my-leaves?status=pending",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"my-leaves"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Leave Balance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has balance data\", function () {",
+									"    pm.expect(response.data).to.have.property('balances');",
+									"    pm.expect(response.data.balances).to.be.an('array');",
+									"});",
+									"",
+									"console.log(\"Leave balances:\", response.data.balances);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/leaves/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"balance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Leave (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Leave approved\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.message).to.include('approved');",
+									"});",
+									"",
+									"console.log(\"Leave status:\", response.data.status);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/leaves/{{leaveId}}/approve",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"{{leaveId}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Leave (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Leave rejected\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"});",
+									"",
+									"console.log(\"Leave status:\", response.data.status);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"Insufficient staff during this period\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/leaves/{{leaveId}}/reject",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"{{leaveId}}",
+								"reject"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pending Leaves (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has pending leaves\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"});",
+									"",
+									"console.log(\"Pending leaves count:\", response.data.length);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/leaves/pending",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"pending"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee",
+			"item": [
+				{
+					"name": "Create Employee (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Employee created\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('employeeId');",
+									"});",
+									"",
+									"if (response.data && response.data._id) {",
+									"    pm.environment.set(\"employeeId\", response.data._id);",
+									"    console.log(\"Employee ID:\", response.data.employeeId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate random email",
+									"const randomNum = Math.floor(Math.random() * 10000);",
+									"pm.environment.set(\"randomEmail\", `emp${randomNum}@company.com`);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"{{randomEmail}}\",\n  \"department\": \"Engineering\",\n  \"designation\": \"Software Developer\",\n  \"role\": \"employee\",\n  \"phone\": \"+1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/employees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Employees (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has employees data\", function () {",
+									"    pm.expect(response.data).to.have.property('employees');",
+									"    pm.expect(response.data).to.have.property('pagination');",
+									"});",
+									"",
+									"console.log(\"Total employees:\", response.data.pagination.totalRecords);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees?page=1&limit=50",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has profile data\", function () {",
+									"    pm.expect(response.data).to.have.property('name');",
+									"    pm.expect(response.data).to.have.property('employeeId');",
+									"    pm.expect(response.data).to.have.property('leaveBalances');",
+									"});",
+									"",
+									"console.log(\"Employee:\", response.data.name);",
+									"console.log(\"ID:\", response.data.employeeId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee Stats (HR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has statistics\", function () {",
+									"    pm.expect(response.data).to.have.property('overview');",
+									"    pm.expect(response.data).to.have.property('departmentBreakdown');",
+									"});",
+									"",
+									"console.log(\"Active employees:\", response.data.overview.active);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/stats/overview",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"stats",
+								"overview"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Policy",
+			"item": [
+				{
+					"name": "Get Active Leave Policy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Has policy data\", function () {",
+									"    pm.expect(response.data).to.have.property('leaveTypes');",
+									"    pm.expect(response.data.category).to.equal('leave');",
+									"});",
+									"",
+									"// Save policy ID",
+									"if (response.data && response.data._id) {",
+									"    pm.environment.set(\"policyId\", response.data._id);",
+									"}",
+									"",
+									"console.log(\"Leave types:\", response.data.leaveTypes.length);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/policies/leave/active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"policies",
+								"leave",
+								"active"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Policy (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Policy created\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('_id');",
+									"});",
+									"",
+									"if (response.data && response.data._id) {",
+									"    pm.environment.set(\"policyId\", response.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Leave Policy 2025\",\n  \"description\": \"Annual leave policy\",\n  \"category\": \"leave\",\n  \"leaveTypes\": [\n    {\n      \"leaveType\": \"casual\",\n      \"annualQuota\": 12,\n      \"carryForward\": true,\n      \"maxCarryForward\": 5\n    },\n    {\n      \"leaveType\": \"sick\",\n      \"annualQuota\": 10,\n      \"carryForward\": false\n    }\n  ],\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/policies",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Leave Type Quota (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"pm.test(\"Policy updated\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"});",
+									"",
+									"console.log(\"Updated policy:\", response.data.title);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"leaveType\": \"casual\",\n  \"annualQuota\": 15,\n  \"carryForward\": true,\n  \"maxCarryForward\": 7,\n  \"description\": \"Updated casual leave policy\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/policies/{{policyId}}/leave-type",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"policies",
+								"{{policyId}}",
+								"leave-type"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"console.log('Request to:', pm.request.url.toString());",
+					"console.log('Method:', pm.request.method);",
+					"",
+					"// Add timestamp",
+					"pm.environment.set('timestamp', new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"console.log('Response status:', pm.response.code);",
+					"console.log('Response time:', pm.response.responseTime, 'ms');",
+					"",
+					"// Test response time",
+					"pm.test(\"Response time is less than 2000ms\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+					"});",
+					"",
+					"// Test content type",
+					"pm.test(\"Content-Type is JSON\", function () {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "employeeId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "leaveId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "policyId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "attendanceId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "admin@example.com",
+			"type": "string"
+		},
+		{
+			"key": "userPassword",
+			"value": "password123",
+			"type": "string"
+		}
+	]
+}
