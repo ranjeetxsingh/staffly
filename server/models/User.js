@@ -20,20 +20,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    participatedEvents: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Event'
-    }],
-    points: { 
-        type: Number,
-        default: 0 
-    },
-    legitComplaints: [
-        { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "Complaint" 
-        }
-    ],
+
     // OAuth fields
     googleId: {
         type: String,
@@ -47,8 +34,8 @@ const userSchema = new mongoose.Schema({
     // Additional user info
     role: {
         type: String,
-        enum: ['user', 'admin','ngo'],
-        default: 'user'
+        enum: ['employee', 'admin'],
+        default: 'employee'
     },
     profile:{
         type: mongoose.Schema.Types.ObjectId,

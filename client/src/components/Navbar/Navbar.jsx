@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { NavbarMenu } from '../../Data/global/navbar';
+import { getNavbarMenuByRole } from '../../Data/global/roleBasedNavbar';
 import ResponsiveMenu from './ResponsiveMenu';
 import {ThemeToggler, HamburgerMenu} from '../index';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -19,6 +19,9 @@ const Navbar = () => {
 
     const [open, setOpen] = useState(false);
     const user = useSelector((state) => state.auth.user);
+    
+    // Get role-based navbar menu
+    const NavbarMenu = getNavbarMenuByRole(user);
     
 
     const handleLogout = () => {
