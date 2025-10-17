@@ -109,11 +109,11 @@ export const leaveService = {
    */
   reject: async (leaveId, data) => {
     try {
-      const response = await axios.put(`/api/leaves/${leaveId}/reject`, data);
+      const response = await axios.put(`/api/leaves/${leaveId}/reject`, { reason: data || 'No reason provided' });
       return response;
     } catch (error) {
       console.error('Error rejecting leave:', error);
-      throw error;
+      throw error; 
     }
   },
 

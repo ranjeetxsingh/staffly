@@ -29,6 +29,7 @@ const LeavePage = () => {
     endDate: '',
     reason: '',
   });
+  const [remarks, setRemarks] = useState('');
 
   const {
     leaves,
@@ -128,13 +129,14 @@ const LeavePage = () => {
     }
   };
 
-  const handleReject = async (leaveId) => {
+  const handleReject = async (leaveId, data) => {
     try {
-      await rejectLeave(leaveId);
+      await rejectLeave(leaveId, data);
       showSuccess('Leave rejected successfully!');
       loadLeaves();
     } catch (error) {
-      showError('Failed to reject leave');
+      console.log(error);
+      showError(error?.message || 'Failed to reject leave');
     }
   };
 
@@ -211,6 +213,22 @@ const LeavePage = () => {
       ),
     },
     {
+      key: 'remark',
+      label: 'Remark',
+      render: (_, row) =>
+        row.status === 'pending' && activeTab === 1 ? (
+          <input
+            type="text"
+            placeholder="Enter remark"
+            value={remarks[row._id] || ''}
+            onChange={(e) => setRemarks({ ...remarks, [row._id]: e.target.value })}
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          />
+        ) : (
+          <span className="text-gray-500 dark:text-gray-400">{row.remark || '-'}</span>
+        ),
+    },
+    {
       key: '_id',
       label: 'Actions',
       render: (value, row) => {
@@ -227,7 +245,7 @@ const LeavePage = () => {
               <Button
                 variant="danger"
                 size="sm"
-                onClick={() => handleReject(value)}
+                onClick={() => handleReject(value, remarks ? remarks[value] : '')}
               >
                 Reject
               </Button>

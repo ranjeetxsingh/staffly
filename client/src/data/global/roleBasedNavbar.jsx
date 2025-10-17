@@ -87,10 +87,10 @@ export const HRNavbarMenu = [
 export const AdminNavbarMenu = [
     {
         id: 1,
-        key: "dashboard",
-        title: "Dashboard",
-        link: "/dashboard",
-        icon: <MdDashboard />,
+        key: "home",
+        title: "Home",
+        link: "/",
+        icon: <FiHome />,
         description: "Admin dashboard overview"
     },
     {

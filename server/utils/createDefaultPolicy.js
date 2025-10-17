@@ -13,7 +13,7 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const createDefaultPolicy = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect("mongodb://localhost:27017/staffly");
+    await mongoose.connect("mongodb+srv://ranjeet:ranjeet123@cluster0.verux0x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
     console.log('✅ Connected to MongoDB');
 
     // Check if an active policy already exists

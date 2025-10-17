@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     // Additional user info
     role: {
         type: String,
-        enum: ['employee', 'admin'],
+        enum: ['employee', 'admin', 'hr'],
         default: 'employee'
     },
     profile:{

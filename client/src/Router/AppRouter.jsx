@@ -18,6 +18,7 @@ import EmployeeListPage from "../pages/Employee/EmployeeListPage";
 import EmployeeDetailPage from "../pages/Employee/EmployeeDetailPage";
 import LeavePage from "../pages/Leave/LeavePage";
 import AccessDenied from "../Pages/AccessDenied/AccessDenied";
+import AttendanceAnalyticsPage from "../pages/Analytics/AttendanceAnalyticsPage";
 
 
 const AppRouter = () => {
@@ -61,6 +62,9 @@ const AppRouter = () => {
 
           {/* Policies */}
           <Route path="policies" element={<Policies />} />
+
+          {/* Attendance Analytics */}
+          <Route path="analytics" element={<AttendanceAnalyticsPage />} />
           
           {/* Profile */}
           <Route path="profile" element={
