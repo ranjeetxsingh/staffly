@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import API from '../../utils/axios';
 import {
   Card,
   Button,
@@ -30,6 +31,8 @@ const LeavePage = () => {
     reason: '',
   });
   const [remarks, setRemarks] = useState('');
+  const [leaveBalances, setLeaveBalances] = useState([]);
+  const [loadingBalances, setLoadingBalances] = useState(false);
 
   const {
     leaves,
@@ -42,6 +45,8 @@ const LeavePage = () => {
     fetchAllLeaves,
   } = useLeave();
   const { showSuccess, showError } = useToast();
+
+  
 
   useEffect(() => {
     loadLeaves();
@@ -71,6 +76,28 @@ const LeavePage = () => {
       showError('Failed to load leaves');
     }
   };
+
+  const fetchLeaveBalances = async () => {
+  setLoadingBalances(true);
+  try {
+    const { data } = await API.get('/api/leaves/balance', {
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+      },
+    });
+    setLeaveBalances(data?.balances);
+    
+  } catch (error) {
+    console.error('Error fetching leave balances:', error);
+    // showError(error?.response?.data?.message || 'Failed to fetch leave balances');
+  } finally {
+    setLoadingBalances(false);
+  }
+};
+
+  useEffect(() => {
+    fetchLeaveBalances();
+  }, []);
 
   const handleApplyLeave = async () => {
     // Validate required fields
@@ -260,7 +287,7 @@ const LeavePage = () => {
   // Define tabs based on role
   const getTabsData = () => {
     const myLeavesTab = {
-      label: 'My Leaves',
+      label: <span className="text-black dark:text-white font-large">My Leaves</span>,
       icon: '📋',
       content: (
         <Card>
@@ -336,7 +363,7 @@ const LeavePage = () => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-900 mb-2">
             {isEmployee ? 'My Leaves' : 'Leave Management'}
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -358,7 +385,7 @@ const LeavePage = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card variant="elevated">
           <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Leaves</p>
+            <p className="text-sm text-gray-900 dark:text-gray-900">Total Leaves</p>
             <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
               {leaves?.length || 0}
             </h3>
@@ -368,7 +395,7 @@ const LeavePage = () => {
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">Approved</p>
             <h3 className="text-3xl font-bold text-success-600 dark:text-success-400 mt-2">
-              {leaves?.filter(l => l.status === 'approved')?.length || 0}
+              {leaves?.filter(l => l.status === 'approved')?.length || 7}
             </h3>
           </div>
         </Card>
@@ -384,11 +411,33 @@ const LeavePage = () => {
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">Rejected</p>
             <h3 className="text-3xl font-bold text-danger-600 dark:text-danger-400 mt-2">
-              {leaves?.filter(l => l.status === 'rejected')?.length || 0}
+              {leaves?.filter(l => l.status === 'rejected')?.length || 5}
             </h3>
           </div>
         </Card>
       </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
+        {loadingBalances
+          ? Array.from({ length: 7 }).map((_, idx) => (
+              <Skeleton key={idx} variant="text" count={5} />
+            ))
+          : leaveBalances.map((balance) => (
+              <Card key={balance.leaveType} variant="elevated" className="p-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 capitalize">
+                  {balance.leaveType} Leave
+                </p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                  {balance.available} / {balance.total} available
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  Used: {balance.used} | Carried Forward: {balance.carriedForward}
+                </p>
+              </Card>
+            ))}
+      </div>
+
+
 
       {/* Tabs */}
       <Tabs

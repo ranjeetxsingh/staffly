@@ -42,13 +42,13 @@ export default function AttendanceAnalyticsPage() {
       ]);
 
       // Extract data
-      const overviewData = overviewRes.data?.data || {};
+      const overviewData = overviewRes?.data || {};
       const monthlyData =
-        (monthlyRes.data?.data?.report || []).map((emp) => ({
+        (monthlyRes?.data.report || []).map((emp) => ({
           ...emp,
           totalWorkHours: Number(emp.totalWorkHours),
         })) || [];
-      const todayData = todayRes.data?.data || {};
+      const todayData = todayRes?.data || {};
 
       // Store state
       setOverview(overviewData);

@@ -321,7 +321,7 @@ const Dashboard = () => {
                   {stats.onLeave}
                 </h3>
               </div>
-              <div className="text-3xl">�</div>
+              <div className="text-3xl">🗓️</div>
             </div>
           </Card>
           <Card variant="elevated" className="p-4">
@@ -377,7 +377,7 @@ const Dashboard = () => {
             <Button 
               variant="link" 
               size="sm"
-              onClick={() => navigate('/leaves')}
+              onClick={() => navigate('/attendance')}
             >
               View all activities →
             </Button>
@@ -415,7 +415,7 @@ const Dashboard = () => {
                   className="w-full justify-start"
                   onClick={() => navigate('/attendance')}
                 >
-                  <span className="mr-2">�</span>
+                  <span className="mr-2">🗓️</span>
                   Attendance Reports
                 </Button>
               </>
@@ -427,15 +427,31 @@ const Dashboard = () => {
               className="w-full justify-start"
               onClick={() => navigate('/policies')}
             >
-              <span className="mr-2">�</span>
+              <span className="mr-2">📑</span>
               View Policies
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => navigate('/leave-policy')}
+            >
+              <span className="mr-2">📝</span>
+              Amend Existing Policy
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => navigate('/create-policy')}
+            >
+              <span className="mr-2">⚙️</span>
+              Create New Policy
             </Button>
             <Button 
               variant="outline" 
               className="w-full justify-start"
               onClick={() => navigate('/profile')}
             >
-              <span className="mr-2">�</span>
+              <span className="mr-2">👨🏻‍💻</span>
               My Profile
             </Button>
           </div>

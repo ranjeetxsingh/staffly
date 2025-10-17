@@ -19,6 +19,8 @@ import EmployeeDetailPage from "../pages/Employee/EmployeeDetailPage";
 import LeavePage from "../pages/Leave/LeavePage";
 import AccessDenied from "../Pages/AccessDenied/AccessDenied";
 import AttendanceAnalyticsPage from "../pages/Analytics/AttendanceAnalyticsPage";
+import LeavePolicyManagementPage from "../pages/Leave/LeavePolicyManagementPage";
+import CreatePolicyPage from "../pages/Policies/CreatePolicy";
 
 
 const AppRouter = () => {
@@ -70,6 +72,18 @@ const AppRouter = () => {
           <Route path="profile" element={
             <PrivateRoute>
               <ProfilePage />
+            </PrivateRoute>
+          } /> 
+
+          <Route path="leave-policy" element={
+            <PrivateRoute>
+              <LeavePolicyManagementPage />
+            </PrivateRoute>
+          } />
+
+          <Route path="create-policy" element={
+            <PrivateRoute>
+              <CreatePolicyPage />
             </PrivateRoute>
           } />  
 
